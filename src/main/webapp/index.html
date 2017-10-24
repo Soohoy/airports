@@ -1,0 +1,76 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Airports</title>
+</head>
+<body>
+    <select id="selectId"></select>
+    <table id="tableId" border="1">
+        <tbody></tbody>
+    </table>
+
+    <script src="http://code.jquery.com/jquery-latest.js"></script>
+    <script language="JavaScript">
+
+        function getFilterValues()
+        {
+            $.ajax({
+                type: "GET",
+                contentType: "application/json",
+                url: "filter/country/",
+                cache: false,
+                success: function(countries){
+                    console.log(countries);
+                    var select = document.getElementById("selectId");
+                    var newOption = new Option('All Countries', '');
+                    select.appendChild(newOption);
+                    var i;
+                    for (i = 0; i < countries.length; i++) {
+                        newOption = new Option(countries[i], countries[i]);
+                        select.appendChild(newOption);
+                    }
+
+                }
+            });
+        }
+
+        function getTableValues(filter)
+        {
+            $.ajax({
+                type: "GET",
+                contentType: "application/json",
+                url: "airport/country/" + filter ,
+                cache: false,
+                success: function(dataRows){
+                    var d = document;
+                    var tbody = d.getElementById('tableId').getElementsByTagName('TBODY')[0];
+                    var table = d.getElementById('tableId');
+                    while(table.rows.length > 0){
+                        table.deleteRow(0);
+                    }
+                    var j;
+                    for (j = 0; j < dataRows.length; j++) {
+                        var row = d.createElement("TR");
+                        tbody.appendChild(row);
+                        for (k = 0; k < dataRows[j].length; k++) {
+                            var td1 = d.createElement("TD");
+                            td1.innerHTML = dataRows[j][k];
+                            row.appendChild(td1);
+                        }
+                    }
+                }
+            });
+        }
+
+        (function () {
+            document.getElementById('selectId').addEventListener('change', function(){
+                getTableValues(this.value);
+            });
+            getFilterValues();
+            getTableValues('');
+        }());
+    </script>
+</body>
+</html>
+
+

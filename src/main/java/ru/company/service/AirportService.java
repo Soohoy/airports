@@ -1,50 +1,93 @@
 package ru.company.service;
 
-import ru.company.entity.Airport;
+import org.springframework.beans.factory.annotation.Autowired;
+import ru.company.dao.AirportDao;
 
-import java.io.*;
 import java.util.*;
 
-/**
- * Created by user on 13.10.2017.
- */
 public class AirportService {
-    List<Airport> list;
 
-    public AirportService(){
-        if (list == null) {
-            list = new ArrayList<>();
-            ClassLoader classLoader = getClass().getClassLoader();
-            try (BufferedReader reader = new BufferedReader(new FileReader(new File(classLoader.getResource("airports.dat").getFile())))) {
-                while (reader.ready()) {
-                    String line = reader.readLine().replaceAll("\"", "");
-                    String[] s = line.split(",");
-                    list.add(new Airport(s[0], s[1], s[2], s[3], s[4], s[5], s[6], s[7], s[8], s[9], s[10], s[11], s[12], s[13]));
+    @Autowired
+    private AirportDao airportDao;
+
+    private List<List<String>> airports;
+
+    private int columnNumber;
+
+    public AirportService(){ }
+
+    public AirportService(AirportDao airportDao) {
+        this.airportDao = airportDao;
+        updateFullList();
+    }
+
+    public void updateFullList () {
+        this.airports = airportDao.readAll();
+    }
+
+    public List<String> getFilterParams() {
+        return null;
+    }
+
+    public List<List<String>> filteredAirports(String filter) {
+        return filteredAirports(columnNumber, filter);
+    }
+
+
+    public List<List<String>> filteredAirports(int column, String filter) {
+        if (filter.length() < 1) {
+            return this.airports;
+        }
+        List<List<String>> filtered = new ArrayList<>();
+        for (int i = 0; i < airports.size(); i++) {
+            if (airports.get(i).get(column).equals(filter)) {
+                List<String> filteredairport = new ArrayList<>();
+                for (String s : airports.get(i)) {
+                    filteredairport.add(s);
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
+                filtered.add(filteredairport);
             }
         }
+        return filtered;
     }
 
-    public List<Airport> getListByParam(String s) {
-        if(s == null || "".equals(s)){
-            return list;
-        }
-        List<Airport> newList = new ArrayList<>();
-        for(Airport airport : list){
-            if(airport.getCountry().equals(s)){
-                newList.add(airport);
+
+    public SortedSet<String> getFilterData() {
+        // column=3 - номер колонки для страны
+        return getFilterData(columnNumber);
+    }
+
+    public SortedSet<String> getFilterData(int column) {
+        SortedSet<String> filterData = new TreeSet<>();
+        for (int i = 0; i < airports.size(); i++) {
+            for (String s : airports.get(i)) {
+                filterData.add(airports.get(i).get(column));
             }
         }
-        return newList;
+        return filterData;
     }
 
-    public Set<String> getListParam(){
-        Set<String> set = new TreeSet<>();
-        for(Airport airport : list){
-            set.add(airport.getCountry());
-        }
-        return set;
+    public AirportDao getAirportDao() {
+        return airportDao;
+    }
+
+    public void setAirportDao(AirportDao airportDao) {
+        this.airportDao = airportDao;
+    }
+
+    public List<List<String>> getAirports() {
+        return airports;
+    }
+
+    public void setAirports(List<List<String>> airports) {
+        this.airports = airports;
+    }
+
+    public int getColumnNumber() {
+        return columnNumber;
+    }
+
+    public void setColumnNumber(int columnNumber) {
+        this.columnNumber = columnNumber;
     }
 }
