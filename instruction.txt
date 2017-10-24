@@ -1,0 +1,5 @@
+Для запуска необходимо иметь Tomcat:
+Поместить файл Airports.war в папку %TOMCAT_HOME%/webapps;
+Запустить файл %TOMCAT_HOME%/bin/startup.bat - для Windows;
+%TOMCAT_HOME%/bin/startup.sh - для Linux;
+Перейти в браузере по адресу "http://localhost:8080/".
